@@ -2,14 +2,14 @@ import React from "react";
 
 const Part = ({ name, value }) => {
   return (
-    <div>
-      Part: {name}, Number of exercises: {value}
-    </div>
+    <p>
+      {name} {value}
+    </p>
   );
 };
 
 const Header = ({ course }) => {
-  return <div>{course}</div>;
+  return <h1>{course}</h1>;
 };
 
 const Content = ({ data }) => {
@@ -23,7 +23,7 @@ const Content = ({ data }) => {
 };
 
 const Total = ({ sum }) => {
-  return <div>Total number of exercises: {sum}</div>;
+  return <p>Number of exercises {sum}</p>;
 };
 
 const App = () => {
