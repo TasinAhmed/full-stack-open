@@ -1,6 +1,6 @@
 import React from "react";
 
-const Display = ({ data, persons, onDelete }) => {
+const Display = ({ data, onDelete }) => {
   return (
     <div>
       {data.map((person) => (

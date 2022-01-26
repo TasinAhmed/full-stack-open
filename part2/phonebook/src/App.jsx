@@ -107,9 +107,11 @@ const App = () => {
     );
   };
 
-  const filteredPersons = persons.filter((person) =>
-    person.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredPersons = search
+    ? persons.filter((person) =>
+        person.name.toLowerCase().includes(search.toLowerCase())
+      )
+    : persons;
 
   return (
     <div>
