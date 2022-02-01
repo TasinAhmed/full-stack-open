@@ -32,61 +32,72 @@ const App = () => {
           console.log(data);
           setPersons(persons.filter((person) => person.id !== item.id));
         })
-        .catch((err) => console.log(err));
+        .catch((err) =>
+          showNotification(err.response.data.error.message, setErrorMsg)
+        );
     }
   };
 
-  const submitName = (e) => {
+  const submitName = async (e) => {
     e.preventDefault();
-
-    if (!newName || !number) {
-      return alert("Invalid input");
-    }
-
-    const matchedPerson = nameExists();
-
-    if (matchedPerson) {
-      if (
-        window.confirm(
-          `${newName} is already added to phonebook, replace the old number with a new one?`
-        )
-      ) {
-        return personService
-          .updatePerson(matchedPerson.id, {
-            ...matchedPerson,
-            number,
-          })
-          .then((data) => {
-            setPersons(
-              persons.map((person) =>
-                person.id === matchedPerson.id ? { ...person, number } : person
-              )
-            );
-            showNotification(`Added ${newName}`, setAddMsg);
-            setNewName("");
-            setNumber("");
-          })
-          .catch((err) => {
-            if (err.response.status === 404) {
-              showNotification(
-                `Information of ${newName} has already been removed from the server`,
-                setErrorMsg
-              );
-            }
-          });
-      } else {
-        return;
-      }
-    }
 
     const newPerson = { name: newName, number };
 
-    personService.createPerson(newPerson).then((data) => {
-      setPersons([...persons, data]);
-      showNotification(`Added ${newName}`, setAddMsg);
-      setNewName("");
-      setNumber("");
-    });
+    personService
+      .createPerson(newPerson)
+      .then((data) => {
+        setPersons([...persons, data]);
+        showNotification(`Added ${newName}`, setAddMsg);
+        setNewName("");
+        setNumber("");
+      })
+      .catch(async (err) => {
+        if (err.response.data.error.type === "duplicate") {
+          if (
+            window.confirm(
+              `${newName} is already added to phonebook, replace the old number with a new one?`
+            )
+          ) {
+            const matchedPerson = await findMatchedPerson();
+
+            console.log(matchedPerson);
+
+            return personService
+              .updatePerson(matchedPerson.id, {
+                ...matchedPerson,
+                number,
+              })
+              .then((data) => {
+                setPersons(
+                  persons.map((person) =>
+                    person.id === matchedPerson.id
+                      ? { ...person, number }
+                      : person
+                  )
+                );
+                showNotification(`Added ${newName}`, setAddMsg);
+                setNewName("");
+                setNumber("");
+              })
+              .catch((err) => {
+                if (err.response.status === 404) {
+                  showNotification(
+                    `Information of ${newName} has already been removed from the server`,
+                    setErrorMsg
+                  );
+                } else {
+                  showNotification(
+                    err.response.data.error.message,
+                    setErrorMsg
+                  );
+                }
+              });
+          }
+        } else {
+          console.log(err.response.data.error);
+          showNotification(err.response.data.error.message, setErrorMsg);
+        }
+      });
   };
 
   const onNameChange = (e) => {
@@ -101,9 +112,9 @@ const App = () => {
     setSearch(e.target.value);
   };
 
-  const nameExists = () => {
-    return persons.find(
-      (person) => person.name.toLowerCase() === newName.toLowerCase()
+  const findMatchedPerson = async () => {
+    return (await personService.getAll()).find(
+      (person) => person.nameSearch === newName.toLowerCase()
     );
   };
 
