@@ -7,7 +7,7 @@ exports.totalLikes = (blogs) => {
 };
 
 exports.favoriteBlog = (blogs) => {
-  let fav;
+  let fav = null;
 
   blogs.reduce((maxLikes, item) => {
     if (Math.max(maxLikes, item.likes) === maxLikes) {
