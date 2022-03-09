@@ -1,18 +1,13 @@
 const router = require("express").Router();
-const Blog = require("../models/blog");
+const asyncHandler = require("express-async-handler");
+const blogsController = require("../controllers/blogs.controller");
 
-router.get("/", (request, response) => {
-  Blog.find({}).then((blogs) => {
-    response.json(blogs);
-  });
-});
+router.get("/", asyncHandler(blogsController.getBlogs));
 
-router.post("/", (request, response) => {
-  const blog = new Blog(request.body);
+router.post("/", asyncHandler(blogsController.postBlog));
 
-  blog.save().then((result) => {
-    response.status(201).json(result);
-  });
-});
+router.delete("/:id", asyncHandler(blogsController.deleteBlog));
+
+router.put("/:id", asyncHandler(blogsController.updateBlog));
 
 module.exports = router;
